@@ -1,18 +1,20 @@
 'use client';
-import React, { useRef, useImperativeHandle } from 'react';
-import { motion, useInView } from 'motion/react';
+import React, { useRef, useImperativeHandle, forwardRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-function HighlightText({
-  ref,
-  text,
-  className,
-  inView = false,
-  inViewMargin = '0px',
-  inViewOnce = true,
-  transition = { duration: 2, ease: 'easeInOut' },
-  ...props
-}) {
+const HighlightText = forwardRef(function HighlightText(
+  {
+    text,
+    className,
+    inView = false,
+    inViewMargin = '0px',
+    inViewOnce = true,
+    transition = { duration: 2, ease: 'easeInOut' },
+    ...props
+  },
+  ref
+) {
   const localRef = useRef(null);
   useImperativeHandle(ref, () => localRef.current);
 
@@ -46,6 +48,6 @@ function HighlightText({
       {text}
     </motion.span>
   );
-}
+});
 
 export { HighlightText };

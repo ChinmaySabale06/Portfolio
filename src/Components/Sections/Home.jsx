@@ -2,7 +2,6 @@ import React from 'react'
 import { RevealOnScroll } from '../RevealOnScroll'
 import TrueFocus from '../TextAnimations/TrueFocus/TrueFocus'
 import { Vortex } from '../ui/Vortex';
-import { HighlightText } from '../ui/HighlightText';
 
 const Home = () => {
   return (
@@ -10,7 +9,7 @@ const Home = () => {
       <section id='home' className='min-h-screen relative overflow-hidden'>
         <div className='absolute inset-0 z-10 bg-transparent bg-opacity-20 flex items-center justify-center'>
           <RevealOnScroll>
-            <div className='text-center px-4'>
+            <div className='text-center px-4 py-4 bg-black/50 rounded-4xl'>
               <h1 className='text-5xl md:text-7xl font-bold mb-6 loading-right inline-block'>
                 <TrueFocus
                   sentence="Chinmay Sabale"
@@ -22,7 +21,7 @@ const Home = () => {
                   pauseBetweenAnimations={1}
                 />
               </h1>
-              <HighlightText className='text-4xl font-semibold' text='Highlight Text' />
+              <h1 className='text-4xl font-semibold' text='Highlight Text'> </h1>
               <p className='text-gray-100 text-lg mb-8 max-w-lg mx-auto drop-shadow-lg'>
                 I'm a full-stack developer who loves crafting clean, scalable web applications. My goal is to build solutions that offer both exceptional performance and a delightful user experience.
               </p>
