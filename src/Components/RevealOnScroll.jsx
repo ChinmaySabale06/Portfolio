@@ -4,19 +4,27 @@ export const RevealOnScroll = ({ children }) => {
   const ref = useRef(null);
 
   useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          ref.current.classList.add("visible");
+          element.classList.add("visible");
+          // Disconnect after revealing for better performance
+          observer.disconnect();
         }
       },
-      { threshold: 0.2, rootMargin: "0px 0px -50px 0px" }
+      { 
+        threshold: 0.1, 
+        rootMargin: "0px 0px -50px 0px" 
+      }
     );
 
-    if (ref.current) observer.observe(ref.current);
+    observer.observe(element);
 
     return () => observer.disconnect();
-  });
+  }, []);
 
   return (
     <div ref={ref} className="reveal">

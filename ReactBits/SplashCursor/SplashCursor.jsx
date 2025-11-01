@@ -945,11 +945,11 @@ function SplashCursor({
 
     function clickSplat(pointer) {
       const color = generateColor();
-      color.r *= 10.0;
-      color.g *= 10.0;
-      color.b *= 10.0;
-      let dx = 10 * (Math.random() - 0.5);
-      let dy = 30 * (Math.random() - 0.5);
+      color.r *= 5.0;
+      color.g *= 5.0;
+      color.b *= 5.0;
+      let dx = 5 * (Math.random() - 0.5);
+      let dy = 15 * (Math.random() - 0.5);
       splat(pointer.texcoordX, pointer.texcoordY, dx, dy, color);
     }
 
@@ -1020,9 +1020,9 @@ function SplashCursor({
 
     function generateColor() {
       let c = HSVtoRGB(Math.random(), 1.0, 1.0);
-      c.r *= 0.15;
-      c.g *= 0.15;
-      c.b *= 0.15;
+      c.r *= 0.08;
+      c.g *= 0.08;
+      c.b *= 0.08;
       return c;
     }
 
@@ -1101,6 +1101,10 @@ function SplashCursor({
       return hash;
     }
 
+    // Throttle function for better performance
+    let lastMoveTime = 0;
+    const moveThrottle = 16; // ~60fps
+
     window.addEventListener('mousedown', (e) => {
       let pointer = pointers[0];
       let posX = scaleByPixelRatio(e.clientX);
@@ -1109,17 +1113,23 @@ function SplashCursor({
       clickSplat(pointer);
     });
 
-    document.body.addEventListener('mousemove', function handleFirstMouseMove(e) {
-      let pointer = pointers[0];
-      let posX = scaleByPixelRatio(e.clientX);
-      let posY = scaleByPixelRatio(e.clientY);
-      let color = generateColor();
-      updateFrame();
-      updatePointerMoveData(pointer, posX, posY, color);
-      document.body.removeEventListener('mousemove', handleFirstMouseMove);
-    });
-
+    let isFirstMove = true;
     window.addEventListener('mousemove', (e) => {
+      if (isFirstMove) {
+        isFirstMove = false;
+        let pointer = pointers[0];
+        let posX = scaleByPixelRatio(e.clientX);
+        let posY = scaleByPixelRatio(e.clientY);
+        let color = generateColor();
+        updateFrame();
+        updatePointerMoveData(pointer, posX, posY, color);
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastMoveTime < moveThrottle) return;
+      lastMoveTime = now;
+
       let pointer = pointers[0];
       let posX = scaleByPixelRatio(e.clientX);
       let posY = scaleByPixelRatio(e.clientY);
@@ -1127,24 +1137,17 @@ function SplashCursor({
       updatePointerMoveData(pointer, posX, posY, color);
     });
 
-    document.body.addEventListener('touchstart', function handleFirstTouchStart(e) {
-      const touches = e.targetTouches;
-      let pointer = pointers[0];
-      for (let i = 0; i < touches.length; i++) {
-        let posX = scaleByPixelRatio(touches[i].clientX);
-        let posY = scaleByPixelRatio(touches[i].clientY);
-        updateFrame();
-        updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-      }
-      document.body.removeEventListener('touchstart', handleFirstTouchStart);
-    });
-
+    let isFirstTouch = true;
     window.addEventListener('touchstart', (e) => {
       const touches = e.targetTouches;
       let pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
         let posX = scaleByPixelRatio(touches[i].clientX);
         let posY = scaleByPixelRatio(touches[i].clientY);
+        if (isFirstTouch) {
+          isFirstTouch = false;
+          updateFrame();
+        }
         updatePointerDownData(pointer, touches[i].identifier, posX, posY);
       }
     });
@@ -1152,6 +1155,10 @@ function SplashCursor({
     window.addEventListener(
       'touchmove',
       (e) => {
+        const now = Date.now();
+        if (now - lastMoveTime < moveThrottle) return;
+        lastMoveTime = now;
+
         const touches = e.targetTouches;
         let pointer = pointers[0];
         for (let i = 0; i < touches.length; i++) {
@@ -1160,7 +1167,7 @@ function SplashCursor({
           updatePointerMoveData(pointer, posX, posY, pointer.color);
         }
       },
-      false
+      { passive: true }
     );
 
     window.addEventListener('touchend', (e) => {
@@ -1191,8 +1198,12 @@ function SplashCursor({
   ]);
 
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-      <canvas ref={canvasRef} id="fluid" className="w-full h-full block"></canvas>
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+      <canvas 
+        ref={canvasRef} 
+        id="fluid" 
+        className="w-full h-full block pointer-events-none" 
+      />
     </div>
   );
 }
